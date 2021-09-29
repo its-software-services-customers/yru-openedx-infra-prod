@@ -1,0 +1,16 @@
+config:
+  project: "yru-general-apps"
+  stateBucket: "yru-prod-terraform-state-files"
+  bucketPrefix: "yru-openedx-rke-cluster-prod"
+
+providers:
+  rke:
+    source: "rancher/rke"
+    version: "1.2.3"
+    logFile: "rke-cluster.log"
+
+  vsphere: 
+    version: "2.0.1"
+    user: ""
+    password: ""
+    vsphereServer: ""
