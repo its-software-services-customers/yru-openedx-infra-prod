@@ -1,0 +1,40 @@
+config:
+  defaultChartId: helm-terraform-gcp
+
+vars: {}
+
+charts:
+  helm-terraform-gcp:
+    chartUrl: https://its-software-services-devops.github.io/helm-terraform-gcp/
+    version: 1.1.7
+
+copy:
+  - from: gs://${SEC.GCS_VAULT_BUCKET}/nonprod/id_rsa*
+    toDir: ""
+
+  - from: terraform/scripts/*
+    toDir: ""
+
+infraIasc:
+  - valuesFiles: [terraform/rke-global.yaml, terraform/rke-cluster.yaml]
+    transformer: yaml2tf
+    alias: onprem
+    values:
+    - --set-string providers.vsphere.user=${SEC.VCENTER_USER}
+    - --set-string providers.vsphere.password=${SEC.VCENTER_PASSWORD}
+    - --set-string providers.vsphere.vsphereServer=${SEC.VCENTER_HOST}
+    - --set-string rkeCluster.cluster.profiles.masterVsphere-001.adminUser=${SEC.SSH_ADMIN_USER}
+    - --set-string rkeCluster.cluster.profiles.masterVsphere-001.adminPassword=${SEC.SSH_ADMIN_PASSWORD}
+    - --set-string rkeCluster.cluster.profiles.workerVsphere-001.adminUser=${SEC.SSH_ADMIN_USER}
+    - --set-string rkeCluster.cluster.profiles.workerVsphere-001.adminPassword=${SEC.SSH_ADMIN_PASSWORD}
+    # For future
+    - --set-string rkeCluster.cluster.profiles.masterVsphere-002.adminUser=${SEC.SSH_ADMIN_USER}
+    - --set-string rkeCluster.cluster.profiles.masterVsphere-002.adminPassword=${SEC.SSH_ADMIN_PASSWORD}
+    - --set-string rkeCluster.cluster.profiles.workerVsphere-002.adminUser=${SEC.SSH_ADMIN_USER}
+    - --set-string rkeCluster.cluster.profiles.workerVsphere-002.adminPassword=${SEC.SSH_ADMIN_PASSWORD}
+
+  - valuesFiles: [terraform/configs/cluster.yaml]
+    alias: rendered-rke-cfg
+    values:
+    - --set-string rkeConfig.cloud_provider.vsphereCloudProvider.virtual_center."10\.10\.2\.25".user=${SEC.VCENTER_USER}
+    - --set-string rkeConfig.cloud_provider.vsphereCloudProvider.virtual_center."10\.10\.2\.25".password=${SEC.VCENTER_PASSWORD}

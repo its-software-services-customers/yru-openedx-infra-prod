@@ -1,0 +1,53 @@
+global:
+  enabledSetting: false
+
+rkeConfig:
+  addons_include: []
+
+  cloud_provider:
+    name: vsphere
+    vsphereCloudProvider:
+      global:
+        insecure-flag: true
+      virtual_center:
+        10.10.2.25:
+          user: ""
+          password: ""
+          port: 443
+          datacenters: HX-YRU-Datacenter
+      workspace:
+        server: 10.10.2.25
+        folder: "/" #This is not required in vSphere driver so set it to /
+        default-datastore: HCI-Datastore
+        datacenter: HX-YRU-Datacenter
+        resourcepool-path: OpenEdx-NonProd
+
+  ingress:
+    provider: nginx
+    options:
+      map-hash-bucket-size: "128"
+      ssl-protocols: SSLv2 SSLv3 TLSv1.1 TLSv1.2
+      use-http2: true
+    extra_args:
+      enable-ssl-passthrough: ""
+
+  services:
+    kube-api:
+      service_cluster_ip_range: 192.168.200.0/21
+      service_node_port_range: 30000-32767
+      extra_args: {}
+      #  oidc-issuer-url: https://dex.aaa-cicd.tdg-int.net
+      #  oidc-client-id: k8s-authen-app
+      #  oidc-username-claim: email
+      #  oidc-groups-claim: groups
+
+    kube-controller:
+      cluster_cidr: 192.168.128.0/18
+      service_cluster_ip_range: 192.168.200.0/21
+      extra_args: 
+        #These 2 lines below needed for MinIO to create CSR
+        cluster-signing-cert-file: "/etc/kubernetes/ssl/kube-ca.pem"
+        cluster-signing-key-file: "/etc/kubernetes/ssl/kube-ca-key.pem"
+
+    kubelet:
+      cluster_dns_server: 192.168.200.10

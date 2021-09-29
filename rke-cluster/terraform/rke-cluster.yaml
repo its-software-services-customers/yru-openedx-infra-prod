@@ -1,0 +1,139 @@
+rkeCluster:
+  vsphereProvisioner:
+    groupName: "yru-rke-openedx-nonprod"
+
+    vcHost: ""
+    vcDc: "HX-YRU-Datacenter"
+    vcDataStore: "HCI-Datastore"
+    vcPoolName: "OpenEdx-NonProd"
+    vcVAppName: ""
+    vcCluster: "HX-YRU-Cluster"
+    
+    affinityRule:
+      enabled: false
+      affinityGroups: ['worker', 'master']
+
+  cluster:
+    clusterYaml: "rendered-rke-cfg.yaml" #Render on the fly from rke-config.yaml
+    cluster_name: "yru-rke-openedx-nonprod"
+    kubernetes_version: "v1.20.8-rancher1-1"
+    ignore_docker_version: true
+    #prefix_path: "/var/lib/toolbox/rke" #CoreOs need to use this path
+
+    outputs:
+      - kube_config_yaml      
+      - rke_state
+
+    #===============================
+    profiles:
+      workerStatic:
+        type: staticProvisioner
+        localSshPrivateKeyPath: "id_rsa"
+        sshUser: "its"
+
+      masterVsphere-001:
+        type: vsphereProvisioner
+        terraformVmModule: "git::https://github.com/its-software-services-devops/tf-module-vsphere-vm.git//modules?ref=1.0.2"      
+        vcenterTemplate: "OPENEDX-RKE-NODE-TEMPLATE-UBT16-1"
+        localProvisionerFile: "k8s-node-provisioner.bash"
+        localSshPrivateKeyPath: "id_rsa"
+        localSshPubKeyPath: "id_rsa.pub"
+        sshUser: "its"
+        adminUser: "dummy"
+        adminPassword: "fakEpassword"
+        memorySize: 4096
+        cpuNum: 4
+        guestId: "ubuntu64Guest"
+        imageLibName: ""
+        imageLibItemName: ""
+        disks:
+          bootDiskSize: 75
+          externals: []
+        networks:
+          defaultNetworkIndex: 0
+          defaultGateWay: "10.10.5.1"
+          dnsList: '["10.10.2.5" , "10.10.2.6"]'
+          interfaces:
+            - index: 1
+              vcNetwork: "vm-network-105"
+              netmask: 24
+
+      workerVsphere-001:
+        type: vsphereProvisioner
+        terraformVmModule: "git::https://github.com/its-software-services-devops/tf-module-vsphere-vm.git//modules?ref=1.0.2"      
+        vcenterTemplate: "OPENEDX-RKE-NODE-TEMPLATE-UBT16-1"
+        localProvisionerFile: "k8s-node-provisioner.bash"
+        localSshPrivateKeyPath: "id_rsa"
+        localSshPubKeyPath: "id_rsa.pub"
+        sshUser: "its"
+        adminUser: "dummy"
+        adminPassword: "fakEpassword"
+        memorySize: 4096
+        cpuNum: 4
+        guestId: "ubuntu64Guest"
+        imageLibName: ""
+        imageLibItemName: ""
+        disks:
+          bootDiskSize: 100
+          externals: []
+        networks:
+          defaultNetworkIndex: 0
+          defaultGateWay: "10.10.5.1"
+          dnsList: '["10.10.2.5" , "10.10.2.6"]'
+          interfaces:
+            - index: 1
+              vcNetwork: "vm-network-105"
+              netmask: 24
+
+    # Instances
+    instances:
+      #=== MASTER ===
+      - host: "rke-openedx-nonprod-master-01"
+        ip: ["10.10.5.11"]
+        profile: "masterVsphere-001"
+        mode: "register" # register, unregister, remove
+        role: '["controlplane", "etcd"]'
+        antiAffinityGroup: master
+
+      - host: "rke-openedx-nonprod-master-02"
+        ip: ["10.10.5.12"]
+        profile: "masterVsphere-001"
+        mode: "register" # register, unregister, remove
+        role: '["controlplane", "etcd"]'
+        antiAffinityGroup: master
+
+      - host: "rke-openedx-nonprod-master-03"
+        ip: ["10.10.5.13"]
+        profile: "masterVsphere-001"
+        mode: "register" # register, unregister, remove
+        role: '["controlplane", "etcd"]'
+        antiAffinityGroup: master
+
+      #=== WORKER ===
+      - host: "rke-openedx-nonprod-worker-01"
+        ip: ["10.10.5.21"]
+        profile: "workerVsphere-001"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
+
+      - host: "rke-openedx-nonprod-worker-02"
+        ip: ["10.10.5.22"]
+        profile: "workerVsphere-001"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
+
+      - host: "rke-openedx-nonprod-worker-03"
+        ip: ["10.10.5.23"]
+        profile: "workerVsphere-001"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
+
+      - host: "rke-openedx-nonprod-worker-04"
+        ip: ["10.10.5.24"]
+        profile: "workerVsphere-001"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
