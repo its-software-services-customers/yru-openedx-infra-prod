@@ -28,6 +28,7 @@ rkeConfig:
       map-hash-bucket-size: "128"
       ssl-protocols: SSLv2 SSLv3 TLSv1.1 TLSv1.2
       use-http2: true
+      proxy-body-size: "150m"
     extra_args:
       enable-ssl-passthrough: ""
 
