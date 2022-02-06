@@ -85,6 +85,35 @@ rkeCluster:
               vcNetwork: "vm-network-105"
               netmask: 24
 
+
+      workerVsphere-002:
+        type: vsphereProvisioner
+        terraformVmModule: "git::https://github.com/its-software-services-devops/tf-module-vsphere-vm.git//modules?ref=1.0.2"      
+        vcenterTemplate: "OPENEDX-RKE-NODE-TEMPLATE-UBT16-1"
+        localProvisionerFile: "k8s-node-provisioner.bash"
+        localSshPrivateKeyPath: "id_rsa"
+        localSshPubKeyPath: "id_rsa.pub"
+        sshUser: "its"
+        adminUser: "dummy"
+        adminPassword: "fakEpassword"
+        memorySize: 16384
+        cpuNum: 8
+        guestId: "ubuntu64Guest"
+        imageLibName: ""
+        imageLibItemName: ""
+        disks:
+          bootDiskSize: 100
+          externals: []
+        networks:
+          defaultNetworkIndex: 0
+          defaultGateWay: "10.10.5.1"
+          dnsList: '["10.10.2.5" , "10.10.2.6"]'
+          interfaces:
+            - index: 1
+              vcNetwork: "vm-network-105"
+              netmask: 24
+
+
     # Instances
     instances:
       #=== MASTER ===
@@ -112,7 +141,7 @@ rkeCluster:
       #=== WORKER ===
       - host: "rke-openedx-prod-worker-01"
         ip: ["10.10.5.61"]
-        profile: "workerVsphere-001"
+        profile: "workerVsphere-002" #Increase CPU + Mem
         mode: "register"
         role: '["worker"]'
         antiAffinityGroup: worker
@@ -134,6 +163,28 @@ rkeCluster:
       - host: "rke-openedx-prod-worker-04"
         ip: ["10.10.5.64"]
         profile: "workerVsphere-001"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
+
+
+      - host: "rke-openedx-prod-worker-05"
+        ip: ["10.10.5.65"]
+        profile: "workerVsphere-002"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
+
+      - host: "rke-openedx-prod-worker-06"
+        ip: ["10.10.5.66"]
+        profile: "workerVsphere-002"
+        mode: "register"
+        role: '["worker"]'
+        antiAffinityGroup: worker
+
+      - host: "rke-openedx-prod-worker-07"
+        ip: ["10.10.5.67"]
+        profile: "workerVsphere-002"
         mode: "register"
         role: '["worker"]'
         antiAffinityGroup: worker
