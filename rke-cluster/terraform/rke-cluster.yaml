@@ -148,21 +148,21 @@ rkeCluster:
 
       - host: "rke-openedx-prod-worker-02"
         ip: ["10.10.5.62"]
-        profile: "workerVsphere-001"
+        profile: "workerVsphere-002"
         mode: "register"
         role: '["worker"]'
         antiAffinityGroup: worker
 
       - host: "rke-openedx-prod-worker-03"
         ip: ["10.10.5.63"]
-        profile: "workerVsphere-001"
+        profile: "workerVsphere-002"
         mode: "register"
         role: '["worker"]'
         antiAffinityGroup: worker
 
       - host: "rke-openedx-prod-worker-04"
         ip: ["10.10.5.64"]
-        profile: "workerVsphere-001"
+        profile: "workerVsphere-002"
         mode: "register"
         role: '["worker"]'
         antiAffinityGroup: worker
